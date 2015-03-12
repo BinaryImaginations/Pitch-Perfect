@@ -9,6 +9,6 @@
 import Foundation
 
 class RecordedAudio: NSObject{
-    var filePathUrl: NSURL!    // Location of the audio clip
-    var title: String!         // Title for the clip
+    var filePathUrl: NSURL!                         // Location of the audio clip
+    var title: String!                              // Title for the clip
 }

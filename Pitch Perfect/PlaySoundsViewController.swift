@@ -15,6 +15,7 @@ class PlaySoundsViewController: UIViewController {
     var audioPlayer:AVAudioPlayer!                // Audio player used for modifying the rate
     var audioFile:AVAudioFile!                    // audio file used by the audio player node for pitch modifications
     var audioEngine:AVAudioEngine!                // Audio engine used to create the audio player node
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,7 +28,6 @@ class PlaySoundsViewController: UIViewController {
         // AVAudioPlayerNode - Create the AVAudioEngine and the AVAudioFile used by the audio player node
         audioEngine = AVAudioEngine()
         audioFile = AVAudioFile(forReading: receivedAudio.filePathUrl, error: nil)
-        
     }
 
     override func didReceiveMemoryWarning() {
@@ -60,6 +60,22 @@ class PlaySoundsViewController: UIViewController {
         playAudioWithEcho(0.5)
     }
     
+    @IBAction func playReverbAudio(sender: UIButton) {
+        // Play the current audio with a reverb
+        playAudioWithReverb(50)
+    }
+    
+    @IBAction func stopAudioPlayback(sender: UIButton) {
+        // Stop all playback
+        stopAudioPlayback()
+    }
+    
+    @IBAction func stopAudioPlayback() {
+        audioPlayer.stop()
+        audioEngine.stop()
+        audioEngine.reset()
+    }
+    
     func playAudioWithEcho(echo: NSTimeInterval) {
         // Stop all playback
         stopAudioPlayback()
@@ -88,7 +104,41 @@ class PlaySoundsViewController: UIViewController {
         
         // Redirect the audio to the external speaker
         redirectAudioToSpeaker()
-
+        
+        // Start audio playback
+        audioPlayerNode.play()
+    }
+    
+    func playAudioWithReverb(reverb: Float) {
+        // Stop all playback
+        stopAudioPlayback()
+        
+        // Create and initialize the audio player node
+        var audioPlayerNode = AVAudioPlayerNode()
+        audioEngine.attachNode(audioPlayerNode)
+        
+        // Create and initialize the audio unit reverb
+        var audioReverb = AVAudioUnitReverb()
+        
+        audioReverb.wetDryMix = reverb
+        
+        // Attach the audio unit delay to the audio engine
+        audioEngine.attachNode(audioReverb)
+        
+        // Connect the player node to the engine
+        audioEngine.connect(audioPlayerNode, to: audioReverb, format: nil)
+        // Connect the audio unit delay to the engine's output
+        audioEngine.connect(audioReverb, to: audioEngine.outputNode, format: nil)
+        
+        // Add the audio file to the player node
+        audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
+        
+        // Start the audio engine
+        audioEngine.startAndReturnError(nil)
+        
+        // Redirect the audio to the external speaker
+        redirectAudioToSpeaker()
+        
         // Start audio playback
         audioPlayerNode.play()
     }
@@ -122,11 +172,11 @@ class PlaySoundsViewController: UIViewController {
         // Redirect the audio to the external speaker
         redirectAudioToSpeaker()
         
-
+        
         // Start audio playback
         audioPlayerNode.play()
     }
-
+    
     func playAudioFromStart(speed: Float) {
         // Stop all playback
         stopAudioPlayback()
@@ -143,18 +193,6 @@ class PlaySoundsViewController: UIViewController {
         
         // Start the audio playback
         audioPlayer.play()
-    }
-    
-    @IBAction func stopAudioPlayback(sender: UIButton) {
-        // Stop all playback
-        stopAudioPlayback()
-    }
-    
-    @IBAction func stopAudioPlayback() {
-        // Stop playback for the player and engine
-        audioPlayer.stop()
-        audioEngine.stop()
-        audioEngine.reset()
     }
 
     func redirectAudioToSpeaker() {
