@@ -46,6 +46,7 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
         recordButton.enabled = true                     // Display the record button
         recordingStarted = false                        // Initial state is that we haven't started yet
         recordingFlag = false                           // Initial state is that we aren't currently recording
+        setRecordingMessage("Tap to Record")            // Set initial recording message
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -56,6 +57,7 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
         recordButton.enabled = true
         recordingStarted = false                        // Initial state is that we haven't started yet
         recordingFlag = false                           // Initial state is that we aren't currently recording
+        setRecordingMessage("Tap to Record")            // Set initial recording message
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -75,19 +77,19 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
             recordingFlag = false
             recordButton.setImage(microphoneAddImage, forState: .Normal)
             audioRecorder.pause()                       // Pause the recorder
-            setRecordingMessage("Press to resume recording") // Set recording message
+            setRecordingMessage("Press to Resume Recording") // Set recording message
         } else if (recordingStarted) {                  // We are current paused
             // Resume recording
             recordingFlag = true
             recordButton.setImage(microphonePauseImage, forState: .Normal)
-            setRecordingMessage("Recording in progress...") // Set recording message
+            setRecordingMessage("Recording In Progress...") // Set recording message
             audioRecorder.record()                      // Start recording
         } else {                                        // Start a new recording
             // Start new recording
             recordingFlag = true
             recordingStarted = true
             recordButton.setImage(microphonePauseImage, forState: .Normal)
-            setRecordingMessage("Recording in progress...") // Set recording message
+            setRecordingMessage("Recording In Progress...") // Set recording message
             stopButton.hidden = false                   // Display the stop recording button
             startRecording()                            // Start the recording
         }
@@ -138,9 +140,7 @@ class RecordSoundsViewController: UIViewController, AVAudioRecorderDelegate {
     func audioRecorderDidFinishRecording(recorder: AVAudioRecorder!, successfully flag: Bool) {
         if (flag) {                                     // If successfully recorded
             // Create the custom recorded audio object
-            recordedAudio = RecordedAudio()
-            recordedAudio.filePathUrl = recorder.url    // Add the filePathURL
-            recordedAudio.title = recorder.url.lastPathComponent    // Add the title
+            recordedAudio = RecordedAudio(filepathurl: recorder.url!, title: recorder.url.lastPathComponent!)
             // Trigger a segue for 'stopRecording' and pass the recordedAudio objectx
             self.performSegueWithIdentifier("stopRecording", sender: recordedAudio)
         } else {                                        // Unsuccessful recording
